@@ -17,6 +17,18 @@ module CommandHelper
     @repository ||= Repository.new(repo_path.join(".git"))
   end
 
+  def mkdir(name)
+    FileUtils.mkdir_p(repo_path.join(name))
+  end
+
+  def delete(name)
+    FileUtils.rm_rf(repo_path.join(name))
+  end
+
+  def touch(name)
+    FileUtils.touch(repo_path.join(name))
+  end
+
   def write_file(name, contents)
     path = repo_path.join(name)
     FileUtils.mkdir_p(path.dirname)
@@ -24,11 +36,28 @@ module CommandHelper
     File.open(path, flags) { |file| file.write(contents) }
   end
 
+  def set_env(key, value)
+    @env ||= {}
+    @env[key] = value
+  end
+
+  def set_stdin(string)
+    @stdin = StringIO.new(string)
+  end
+
   def jit_cmd(*argv)
-    @stdin = StringIO.new
+    @env ||= {}
+    @stdin ||= StringIO.new
     @stdout = StringIO.new
     @stderr = StringIO.new
-    @cmd = Command.execute(repo_path.to_s, {}, argv, @stdin, @stdout, @stderr)
+    @cmd = Command.execute(repo_path.to_s, @env, argv, @stdin, @stdout, @stderr)
+  end
+
+  def commit(message)
+    set_env("GIT_AUTHOR_NAME", "A. U. Thor")
+    set_env("GIT_AUTHOR_EMAIL", "author@example.com")
+    set_stdin(message)
+    jit_cmd("commit")
   end
 
   def make_executable(name)

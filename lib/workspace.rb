@@ -10,6 +10,17 @@ class Workspace
     @pathname = pathname
   end
 
+  def list_dir(dirname)
+    path = @pathname.join(dirname || "")
+    entries = Dir.entries(path) - IGNORE
+    stats = {}
+    entries.each do |name|
+      relative = path.join(name).relative_path_from(@pathname)
+      stats[relative.to_s] = File.stat(path.join(name))
+    end
+    stats
+  end
+
   def list_files(path = @pathname)
     relative = path.relative_path_from(@pathname)
     if File.directory?(path)

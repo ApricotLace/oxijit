@@ -87,6 +87,11 @@ class Index
     end
   end
 
+  def update_entry_stat(entry, stat)
+    entry.update_stat(stat)
+    @changed = true
+  end
+
   def load_for_update
     @lockfile.hold_for_update
     load
@@ -125,6 +130,10 @@ class Index
     else
       enum_for(:each_entry)
     end
+  end
+
+  def tracked?(path)
+    @entries.has_key?(path.to_s) or @parents.has_key?(path.to_s)
   end
 
   def release_lock
