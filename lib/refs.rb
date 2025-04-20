@@ -18,7 +18,6 @@ class Refs
   end
 
   def read_head
-    puts head_path
     return unless File.exist?(head_path)
 
     File.read(head_path).strip
